@@ -1,5 +1,5 @@
 FROM ubuntu:20.04
-MAINTAINER Jan Grewe <jan@faked.org>
+MAINTAINER Bhramar Choudhary
 
 ENV VERSION_TOOLS "6609375"
 
@@ -11,18 +11,23 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -qq update \
  && apt-get install -qqy --no-install-recommends \
+      bison \
       bzip2 \
       curl \
+      dpkg-dev \
       git-core \
       html2text \
-      openjdk-11-jdk \
-      libc6-i386 \
       lib32stdc++6 \
       lib32gcc1 \
       lib32ncurses6 \
       lib32z1 \
-      unzip \
+      libc6-i386 \
+      libcurl4-openssl-dev \
+      libgdbm-dev \
       locales \
+      openjdk-11-jdk \
+      ruby-full \
+      unzip \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN locale-gen en_US.UTF-8
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
@@ -47,3 +52,5 @@ RUN mkdir -p /root/.android \
 
 RUN while read -r package; do PACKAGES="${PACKAGES}${package} "; done < /sdk/packages.txt \
  && ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} ${PACKAGES}
+
+RUN gem install bundler
