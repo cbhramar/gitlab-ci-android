@@ -5,20 +5,12 @@ stages:
 build:
   stage: build
   script:
-    - docker build -t dcr.faked.org/gitlab-ci/android:${CI_COMMIT_SHORT_SHA} .
+    - docker build -t bhramar/gitlab-ci-android:latest .
 
 push_latest:
   stage: push
   only:
     - master
   script:
-    - docker tag dcr.faked.org/gitlab-ci/android:${CI_COMMIT_SHORT_SHA} dcr.faked.org/gitlab-ci/android:latest
-    - docker push dcr.faked.org/gitlab-ci/android:latest
-
-push_tag:
-  stage: push
-  only:
-    - tags
-  script:
-    - docker tag dcr.faked.org/gitlab-ci/android:${CI_COMMIT_SHORT_SHA} dcr.faked.org/gitlab-ci/android:${CI_COMMIT_TAG}
-    - docker push dcr.faked.org/gitlab-ci/android:${CI_COMMIT_TAG}
+    - docker tag bhramar/gitlab-ci-android:latest bhramar/gitlab-ci-android:latest
+    - docker push bhramar/gitlab-ci-android:latest
