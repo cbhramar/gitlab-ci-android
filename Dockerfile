@@ -6,7 +6,7 @@ ENV VERSION_TOOLS "6609375"
 ENV ANDROID_SDK_ROOT "/sdk"
 # Keep alias for compatibility
 ENV ANDROID_HOME "${ANDROID_SDK_ROOT}"
-ENV PATH "$PATH:${ANDROID_SDK_ROOT}/tools"
+ENV PATH "$PATH:${ANDROID_SDK_ROOT}/tools:/root/.rbenv/bin:/root/.rbenv/shims"
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -qq update \
@@ -15,7 +15,7 @@ RUN apt-get -qq update \
       curl \
       git-core \
       html2text \
-      openjdk-11-jdk \
+      openjdk-8-jdk \
       libc6-i386 \
       lib32stdc++6 \
       lib32gcc1 \
@@ -23,6 +23,15 @@ RUN apt-get -qq update \
       lib32z1 \
       unzip \
       locales \
+      libcurl4-openssl-dev \
+      bison \
+      dpkg-dev \
+      libgdbm-dev \
+      libssl-dev \
+      libreadline-dev \
+      zlib1g-dev \
+      gcc \
+      g++ \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN locale-gen en_US.UTF-8
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
@@ -46,3 +55,22 @@ RUN mkdir -p /root/.android \
  && ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update
 
 RUN ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --package_file=/sdk/packages.txt
+
+ENV PATH "$PATH:/usr/bin/gcc"
+
+RUN curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-installer | bash
+
+RUN rbenv install 2.6.6
+
+RUN rbenv global 2.6.6
+
+RUN rbenv init -
+
+ENV RUBYLIB "/root/.gem/ruby/2.6.0:/root/.gem/ruby/2.6.0/ruby/2.6.0:/root/.gem/ruby/2.6.0/ruby/2.6.0/gems"
+
+RUN gem install bundler \
+ && gem install builder -v 3.2.2 \
+ && gem install tilt -v 2.0.10 \
+ && gem install activesupport -v 6.0.3.3 \
+ && gem install rubysl-pathname \
+ && gem install activesupport-core-ext
