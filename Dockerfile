@@ -35,7 +35,6 @@ RUN apt-get -qq update \
       gcc \
       g++ \
       imagemagick \
- && apt-get -qq update \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN locale-gen en_US.UTF-8
@@ -59,36 +58,30 @@ ADD packages.txt /sdk
 
 RUN mkdir -p /root/.android \
  && touch /root/.android/repositories.cfg \
- && ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update
-
-RUN ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --package_file=/sdk/packages.txt
+ && ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update \
+ && ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --package_file=/sdk/packages.txt
 
 ENV PATH "$PATH:/usr/bin/gcc"
 
-RUN curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-installer | bash
-
-RUN rbenv install 2.6.6
-
-RUN rbenv global 2.6.6
-
-RUN rbenv init -
+RUN curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-installer | bash \
+ && rbenv install 2.6.6 \
+ && rbenv global 2.6.6 \
+ && rbenv init -
 
 ENV RUBYLIB "/root/.gem/ruby/2.6.0"
+
+RUN mkdir -p /bundle-ruby/
+
+ADD Gemfile /bundle-ruby/
 
 RUN gem install bundler \
  && gem install builder -v 3.2.2 \
  && gem install tilt -v 2.0.10 \
  && gem install activesupport -v 6.0.3.3 \
  && gem install rubysl-pathname \
- && gem install activesupport-core-ext
+ && gem install activesupport-core-ext 
 
-RUN mkdir -p /ruby-bundle/
-
-ADD Gemfile /ruby-bundle/
-
-RUN bundle config set path '/ruby-bundle/vendorgems/'
-
-RUN cd /ruby-bundle \
- && bundle install --quiet \
- && bundle update --quiet \
+RUN cd /bundle-ruby \
+ && bundle install \
+ && bundle update --bundler \
  && cd /
