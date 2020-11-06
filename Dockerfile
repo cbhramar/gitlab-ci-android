@@ -4,9 +4,11 @@ MAINTAINER Bhramar Choudhary
 ENV VERSION_TOOLS "6609375"
 
 ENV ANDROID_SDK_ROOT "/sdk"
-# Keep alias for compatibility
+
 ENV ANDROID_HOME "${ANDROID_SDK_ROOT}"
+
 ENV PATH "$PATH:${ANDROID_SDK_ROOT}/tools:/root/.rbenv/bin:/root/.rbenv/shims"
+
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -qq update \
@@ -33,8 +35,11 @@ RUN apt-get -qq update \
       gcc \
       g++ \
       imagemagick \
+ && apt-get -qq update \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 RUN locale-gen en_US.UTF-8
+
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 
 RUN rm -f /etc/ssl/certs/java/cacerts; \
@@ -51,6 +56,7 @@ RUN mkdir -p $ANDROID_SDK_ROOT/licenses/ \
  && yes | ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses >/dev/null
 
 ADD packages.txt /sdk
+
 RUN mkdir -p /root/.android \
  && touch /root/.android/repositories.cfg \
  && ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update
@@ -67,7 +73,7 @@ RUN rbenv global 2.6.6
 
 RUN rbenv init -
 
-ENV RUBYLIB "/root/.gem/ruby/2.6.0:/root/.gem/ruby/2.6.0/ruby/2.6.0:/root/.gem/ruby/2.6.0/ruby/2.6.0/gems"
+ENV RUBYLIB "/root/.gem/ruby/2.6.0"
 
 RUN gem install bundler \
  && gem install builder -v 3.2.2 \
@@ -75,3 +81,14 @@ RUN gem install bundler \
  && gem install activesupport -v 6.0.3.3 \
  && gem install rubysl-pathname \
  && gem install activesupport-core-ext
+
+RUN mkdir -p /ruby-bundle/
+
+ADD Gemfile /ruby-bundle/
+
+RUN bundle config set path '/ruby-bundle/vendorgems/'
+
+RUN cd /ruby-bundle \
+ && bundle install --quiet \
+ && bundle update --quiet \
+ && cd /
